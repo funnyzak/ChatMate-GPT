@@ -1,6 +1,6 @@
 {
   "name": "chatmate",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "chatmate is a chatbot based on OPEN AI GPT-3. You can chat with it and it will give you a response based on your input.",
   "main": "index.js",
   "private": false,

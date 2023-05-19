@@ -37,6 +37,7 @@ import {
   setCurrentConversation
 } from './ChatActions'
 import { setICloudSyncTime } from '.'
+import { Platform } from 'react-native'
 
 export const setShortcuts = (
   shortcuts: Array<Record<string, any>>
@@ -241,6 +242,7 @@ export const initConversations =
 export const syncICloudChatMateAction =
   (params?: Callbacks) =>
   async (dispatch: Dispatch, _getState: () => RootState) => {
+    if (Platform.OS !== 'ios') return
     try {
       logInfo('Start to sync iCloud chat mate...')
       const cloud_data = await syncICloudChatMate(_getState().cache)

@@ -35,7 +35,7 @@ import { Theme, useTheme } from '@src/theme'
 import { changeDayJsLocale } from '@src/utils/date'
 import { wait } from '@src/utils/utils'
 import React, { useEffect, useRef } from 'react'
-import { AppState, Linking } from 'react-native'
+import { AppState, Linking, Platform } from 'react-native'
 import { SheetProvider } from 'react-native-actions-sheet'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import SplashScreen from 'react-native-splash-screen'
@@ -85,9 +85,10 @@ export const AppNavigationContainer = () => {
 
     // 初始化数据
     const initData = async () => {
-      // 初始化iCloud
-      await iCloudHelperAPI.init(ICloudConfig.containers[0])
-
+      if (Platform.OS === 'ios') {
+        // 初始化iCloud
+        await iCloudHelperAPI.init(ICloudConfig.containers[0])
+      }
       if (icloudSync && iCloudHelperAPI.iCloudAvailable) {
         runAsyncWithouthError(
           dispatch(
@@ -132,8 +133,10 @@ export const AppNavigationContainer = () => {
       OpenAIApi.setTimeout(openAISetting.networkTimeout)
     }
 
-    // 设置TTS
-    TTS.setLanguage(getLocale() as LanguageTagType)
+    runAsyncWithouthError(() => {
+      // 设置TTS
+      TTS.setLanguage(getLocale() as LanguageTagType)
+    })
 
     wait(1000, () => {
       // 拉取prompt列表
