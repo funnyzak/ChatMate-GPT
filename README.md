@@ -155,6 +155,7 @@ npx react-native run-android --variant release
 
 ### Reference
 
+- [ChatGPT-Shortcut](https://github.com/rockbenben/ChatGPT-Shortcut) is a chatgpt prompt word library.
 - [enviroment setup](https://reactnative.dev/docs/environment-setup) to setup react-native development environment.
 - [running on device](https://reactnative.dev/docs/running-on-device) to run app on device.
 - [debugging](https://twitter.com/i/spaces/1YqJDqDpqzAxV) to debug app.
