@@ -1,0 +1,215 @@
+diff --git a/node_modules/react-native-gifted-chat/lib/Bubble.d.ts b/node_modules/react-native-gifted-chat/lib/Bubble.d.ts
+index e174a4d..15f77bf 100644
+--- a/node_modules/react-native-gifted-chat/lib/Bubble.d.ts
++++ b/node_modules/react-native-gifted-chat/lib/Bubble.d.ts
+@@ -41,6 +41,7 @@ export interface BubbleProps<TMessage extends IMessage> {
+     renderCustomView?(bubbleProps: BubbleProps<TMessage>): React.ReactNode;
+     renderTime?(timeProps: TimeProps<TMessage>): React.ReactNode;
+     renderTicks?(currentMessage: TMessage): React.ReactNode;
++    ticksText?: string;
+     renderUsername?(user?: TMessage['user']): React.ReactNode;
+     renderQuickReplySend?(): React.ReactNode;
+     renderQuickReplies?(quickReplies: QuickRepliesProps<TMessage>): React.ReactNode;
+diff --git a/node_modules/react-native-gifted-chat/lib/Bubble.js b/node_modules/react-native-gifted-chat/lib/Bubble.js
+index 70b74ae..4bc1731 100644
+--- a/node_modules/react-native-gifted-chat/lib/Bubble.js
++++ b/node_modules/react-native-gifted-chat/lib/Bubble.js
+@@ -195,10 +195,15 @@ export default class Bubble extends React.Component {
+         return null;
+     }
+     renderTicks() {
+-        const { currentMessage, renderTicks, user } = this.props;
++        const { currentMessage, renderTicks, user, ticksText, position } = this.props;
+         if (renderTicks && currentMessage) {
+             return renderTicks(currentMessage);
+         }
++        if (ticksText){
++            return (<View style={styles.content.tickView}>
++          {!!ticksText && (<Text style={[styles.content.tick, this.props.tickStyle[position]]}>{ticksText}</Text>)}   
++        </View>);
++        }
+         if (currentMessage &&
+             user &&
+             currentMessage.user &&
+@@ -206,11 +211,11 @@ export default class Bubble extends React.Component {
+             return null;
+         }
+         if (currentMessage &&
+-            (currentMessage.sent || currentMessage.received || currentMessage.pending)) {
++            (currentMessage.sent || currentMessage.received || currentMessage.pending )) {
+             return (<View style={styles.content.tickView}>
+-          {!!currentMessage.sent && (<Text style={[styles.content.tick, this.props.tickStyle]}>✓</Text>)}
+-          {!!currentMessage.received && (<Text style={[styles.content.tick, this.props.tickStyle]}>✓</Text>)}
+-          {!!currentMessage.pending && (<Text style={[styles.content.tick, this.props.tickStyle]}>🕓</Text>)}
++          {!!currentMessage.sent && (<Text style={[styles.content.tick, this.props.tickStyle[position]]}>✓</Text>)}
++          {!!currentMessage.received && (<Text style={[styles.content.tick, this.props.tickStyle[position]]}>✓</Text>)}
++          {!!currentMessage.pending && (<Text style={[styles.content.tick, this.props.tickStyle[position]]}>🕓</Text>)}
+         </View>);
+         }
+         return null;
+@@ -315,6 +320,7 @@ Bubble.defaultProps = {
+         createdAt: null,
+         image: null,
+     },
++    ticksText: undefined,
+     nextMessage: {},
+     previousMessage: {},
+     containerStyle: {},
+@@ -329,6 +335,7 @@ Bubble.propTypes = {
+     user: PropTypes.object.isRequired,
+     touchableProps: PropTypes.object,
+     onLongPress: PropTypes.func,
++    ticksText: PropTypes.string,
+     renderMessageImage: PropTypes.func,
+     renderMessageVideo: PropTypes.func,
+     renderMessageAudio: PropTypes.func,
+diff --git a/node_modules/react-native-gifted-chat/lib/GiftedChat.d.ts b/node_modules/react-native-gifted-chat/lib/GiftedChat.d.ts
+index 3c57178..8fc804b 100644
+--- a/node_modules/react-native-gifted-chat/lib/GiftedChat.d.ts
++++ b/node_modules/react-native-gifted-chat/lib/GiftedChat.d.ts
+@@ -25,6 +25,7 @@ import { ActionSheetProviderRef } from '@expo/react-native-action-sheet';
+ export interface GiftedChatProps<TMessage extends IMessage = IMessage> {
+     messages?: TMessage[];
+     isTyping?: boolean;
++    typingIndicatorStyle?: any;
+     messagesContainerStyle?: StyleProp<ViewStyle>;
+     text?: string;
+     alignTop?: boolean;
+diff --git a/node_modules/react-native-gifted-chat/lib/GiftedChat.js b/node_modules/react-native-gifted-chat/lib/GiftedChat.js
+index a91d004..a5a9858 100644
+--- a/node_modules/react-native-gifted-chat/lib/GiftedChat.js
++++ b/node_modules/react-native-gifted-chat/lib/GiftedChat.js
+@@ -44,6 +44,7 @@ class GiftedChat extends React.Component {
+             typingDisabled: false,
+             text: undefined,
+             messages: undefined,
++            contextValues:{},
+         };
+         this.getLocale = () => this._locale;
+         this.onKeyboardWillShow = (e) => {
+@@ -66,7 +67,9 @@ class GiftedChat extends React.Component {
+                 this.setBottomOffset(0);
+                 const newMessagesContainerHeight = this.getBasicMessagesContainerHeight();
+                 this.setState({
+-                    messagesContainerHeight: newMessagesContainerHeight,
++                    messagesContainerHeight: this._keyboardHeight > 0
++                        ? newMessagesContainerHeight
++                        : this.getMaxHeight(),
+                 });
+             }
+         };
+@@ -114,7 +117,9 @@ class GiftedChat extends React.Component {
+             const newMessagesContainerHeight = this.getMessagesContainerHeightWithKeyboard(newComposerHeight);
+             this.setState({
+                 composerHeight: newComposerHeight,
+-                messagesContainerHeight: newMessagesContainerHeight,
++                messagesContainerHeight:  this._keyboardHeight > 0
++                        ? newMessagesContainerHeight
++                        : this.getMaxHeight(),
+             });
+         };
+         this.onInputTextChanged = (text) => {
+@@ -143,7 +148,7 @@ class GiftedChat extends React.Component {
+                 isInitialized: true,
+                 text: this.getTextFromProp(initialText),
+                 composerHeight: newComposerHeight,
+-                messagesContainerHeight: newMessagesContainerHeight,
++                messagesContainerHeight: this._keyboardHeight > 0 ? newMessagesContainerHeight : this.getMaxHeight(),
+             });
+         };
+         this.onMainViewLayout = (e) => {
+@@ -193,6 +198,11 @@ class GiftedChat extends React.Component {
+         this.initLocale();
+         this.setMessages(messages || []);
+         this.setTextFromProp(text);
++        this.setState({contextValues: {
++            actionSheet: this.props.actionSheet ||
++                (() => { var _a; return (_a = this._actionSheetRef.current) === null || _a === void 0 ? void 0 : _a.getContext(); }),
++                getLocale: this.getLocale,
++        }})
+     }
+     componentWillUnmount() {
+         this.setIsMounted(false);
+@@ -370,7 +380,9 @@ class GiftedChat extends React.Component {
+         this.setState({
+             text: this.getTextFromProp(''),
+             composerHeight: newComposerHeight,
+-            messagesContainerHeight: newMessagesContainerHeight,
++            messagesContainerHeight: this._keyboardHeight > 0
++                        ? newMessagesContainerHeight
++                        : this.getMaxHeight(),
+         });
+     }
+     focusTextInput() {
+@@ -416,13 +428,7 @@ class GiftedChat extends React.Component {
+     }
+     render() {
+         if (this.state.isInitialized === true) {
+-            const actionSheet = this.props.actionSheet ||
+-                (() => { var _a; return (_a = this._actionSheetRef.current) === null || _a === void 0 ? void 0 : _a.getContext(); });
+-            const { getLocale } = this;
+-            return (<GiftedChatContext.Provider value={{
+-                    actionSheet,
+-                    getLocale,
+-                }}>
++            return (<GiftedChatContext.Provider value={this.state.contextValues}>
+           <View testID={TEST_ID.WRAPPER} style={styles.wrapper}>
+             <ActionSheetProvider ref={this._actionSheetRef}>
+               <View style={styles.container} onLayout={this.onMainViewLayout}>
+diff --git a/node_modules/react-native-gifted-chat/lib/MessageContainer.js b/node_modules/react-native-gifted-chat/lib/MessageContainer.js
+index 6bdf6da..63ef396 100644
+--- a/node_modules/react-native-gifted-chat/lib/MessageContainer.js
++++ b/node_modules/react-native-gifted-chat/lib/MessageContainer.js
+@@ -58,7 +58,7 @@ export default class MessageContainer extends React.PureComponent {
+             if (Platform.OS === 'web') {
+                 return null;
+             }
+-            return <TypingIndicator isTyping={this.props.isTyping || false}/>;
++            return <TypingIndicator typingIndicatorStyle={this.props.typingIndicatorStyle} isTyping={this.props.isTyping || false}/>;
+         };
+         this.renderFooter = () => {
+             if (this.props.renderFooter) {
+@@ -192,7 +192,7 @@ export default class MessageContainer extends React.PureComponent {
+     render() {
+         const { inverted } = this.props;
+         return (<View style={this.props.alignTop ? styles.containerAlignTop : styles.container}>
+-        <FlatList ref={this.props.forwardRef} extraData={[this.props.extraData, this.props.isTyping]} keyExtractor={this.keyExtractor} enableEmptySections automaticallyAdjustContentInsets={false} inverted={inverted} data={this.props.messages} style={styles.listStyle} contentContainerStyle={styles.contentContainerStyle} renderItem={this.renderRow} {...this.props.invertibleScrollViewProps} ListEmptyComponent={this.renderChatEmpty} ListFooterComponent={inverted ? this.renderHeaderWrapper : this.renderFooter} ListHeaderComponent={inverted ? this.renderFooter : this.renderHeaderWrapper} onScroll={this.handleOnScroll} scrollEventThrottle={100} onLayout={this.onLayoutList} onEndReached={this.onEndReached} onEndReachedThreshold={0.1} {...this.props.listViewProps}/>
++        <FlatList scrollIndicatorInsets={{ right: 1 }} ref={this.props.forwardRef} extraData={[this.props.extraData, this.props.isTyping]} keyExtractor={this.keyExtractor} enableEmptySections automaticallyAdjustContentInsets={false} inverted={inverted} data={this.props.messages} style={styles.listStyle} contentContainerStyle={styles.contentContainerStyle} renderItem={this.renderRow} {...this.props.invertibleScrollViewProps} ListEmptyComponent={this.renderChatEmpty} ListFooterComponent={inverted ? this.renderHeaderWrapper : this.renderFooter} ListHeaderComponent={inverted ? this.renderFooter : this.renderHeaderWrapper} onScroll={this.handleOnScroll} scrollEventThrottle={100} onLayout={this.onLayoutList} onEndReached={this.onEndReached} onEndReachedThreshold={0.1} {...this.props.listViewProps}/>
+         {this.state.showScrollBottom && this.props.scrollToBottom
+                 ? this.renderScrollToBottomWrapper()
+                 : null}
+diff --git a/node_modules/react-native-gifted-chat/lib/TypingIndicator.js b/node_modules/react-native-gifted-chat/lib/TypingIndicator.js
+index fb29bb2..cd09b4b 100644
+--- a/node_modules/react-native-gifted-chat/lib/TypingIndicator.js
++++ b/node_modules/react-native-gifted-chat/lib/TypingIndicator.js
+@@ -3,7 +3,7 @@ import { Animated, StyleSheet } from 'react-native';
+ import { TypingAnimation } from 'react-native-typing-animation';
+ import { useUpdateLayoutEffect } from './hooks/useUpdateLayoutEffect';
+ import Color from './Color';
+-const TypingIndicator = ({ isTyping }) => {
++const TypingIndicator = ({ isTyping, typingIndicatorStyle }) => {
+     const { yCoords, heightScale, marginScale } = React.useMemo(() => ({
+         yCoords: new Animated.Value(200),
+         heightScale: new Animated.Value(0),
+@@ -56,8 +56,12 @@ const TypingIndicator = ({ isTyping }) => {
+             }),
+         ]).start();
+     };
++    const dotColor = typingIndicatorStyle && typingIndicatorStyle.dotColor ? typingIndicatorStyle.dotColor : 'rgba(0, 0, 0, 0.38)';
+     return (<Animated.View style={[
+             styles.container,
++            {
++                backgroundColor: typingIndicatorStyle && typingIndicatorStyle.backgroundColor ? typingIndicatorStyle.backgroundColor : Color.leftBubbleBackground,
++            },
+             {
+                 transform: [
+                     {
+@@ -68,7 +72,7 @@ const TypingIndicator = ({ isTyping }) => {
+                 marginBottom: marginScale,
+             },
+         ]}>
+-      {isTyping ? (<TypingAnimation style={{ marginLeft: 6, marginTop: 7.2 }} dotRadius={4} dotMargin={5.5} dotColor={'rgba(0, 0, 0, 0.38)'}/>) : null}
++      {isTyping ? (<TypingAnimation style={{ marginLeft: 6, marginTop: 7.2 }} dotRadius={4} dotMargin={5.5} dotColor={dotColor}/>) : null}
+     </Animated.View>);
+ };
+ const styles = StyleSheet.create({

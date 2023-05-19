@@ -1,0 +1,127 @@
+name: CI
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  DIST_ARCHIVE_PREFIX_NAME: ${{ github.event.repository.name }}
+
+jobs:
+  lint-and-test:
+    name: Lint and Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org/'
+          cache: 'yarn'
+      - name: Install dependencies
+        run: |
+          yarn
+
+  build-android-apk:
+    name: Build Android APK
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set variables
+        id: set_veriables
+        run: |
+          # Get the version from package.json
+          echo "PACKAGE_VERSION_NAME=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+          # Get the name from package.json
+          echo "PACKAGE_NAME=$(node -p "require('./package.json').name")" >> $GITHUB_ENV
+          # current push sha
+          echo "COMMIT_ID=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+          # current push tag
+          echo "VERSION=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_ENV
+          # latest tag
+          echo "TAG_NAME=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+          # set current timestamp
+          echo "TIMESTAMP=$(date +%s)" >> $GITHUB_ENV
+          # set current time and format
+          echo "BUILD_TIME=$(date "+%Y-%m-%d-%H-%M")" >> $GITHUB_ENV
+      - name: Set apk name
+        id: set_apk_name
+        run: |
+          echo "APK_NAME=${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION_NAME }}-${{ env.TIMESTAMP }}-${{ env.COMMIT_ID }}.apk" >> $GITHUB_ENV
+      - name: Build changelog
+        id: build_changelog
+        uses: mikepenz/release-changelog-builder-action@v3.4.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          configuration: '.github/config/changelog_configuration.json'
+          ignorePreReleases: 'false'
+      - name: Use node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Restore yarn cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install dependencies
+        run: |
+          yarn
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+      - name: Build APK
+        run: |
+          cd android && ./gradlew assembleRelease
+      - name: Move apk to target directory
+        run: cp android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/release/${{ env.APK_NAME }}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: ${{ steps.build_changelog.outputs.changelog }}
+          name: ${{ env.PACKAGE_VERSION_NAME }}
+          tag_name: ${{ env.TAG_NAME }}
+          files: |
+            android/app/build/outputs/apk/release/${{ env.APK_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
+
+  push-release-message:
+    name: Push release message
+    runs-on: ubuntu-latest
+    needs: [build-android-apk]
+    steps:
+      - name: Push message
+        uses: funnyzak/pushoo-action@main
+        with:
+          platforms: ifttt,wecombot,bark
+          tokens: ${{ secrets.PUSH_TOKEN }}
+          content: |
+            # ${{ github.event.repository.name }} Released
+            ## trigger: ${{ github.event_name }} at ${{ github.event.head_commit.timestamp }}
+            ## commit message: ${{ github.event.head_commit.message }}
+            ## commit url: ${{ github.event.head_commit.url }}
+            ## commit author: ${{ github.event.head_commit.author.name }}
+            ## commit email: ${{ github.event.head_commit.author.email }}
+            ## commit id: ${{ github.event.head_commit.id }}
+          title: |
+            ${{ github.repository }} ${{ github.event_name }} Message
+          options: '{"bark": { "url": "https://github.com/${{github.repository}}" }}'
+          debug: false

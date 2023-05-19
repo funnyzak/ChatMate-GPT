@@ -1,0 +1,19 @@
+{
+  "prompts": [
+    {
+      "title": "Personal Assistant",
+      "description": "An efficient personal assistant",
+      "prompt": "You are an efficient personal assistant. Please respond based on the following topic: [Where to go today]"
+    },
+    {
+      "title": "Writing Assistant",
+      "description": "A writing assistant to help you write better",
+      "prompt": "You are a writing assistant that helps people write better. Please write a short piece based on the following topic: [Ideal and Reality]"
+    },
+    {
+      "title": "Poet",
+      "description": "As a poet, write a poem based on the following topic",
+      "prompt": "Please write a poem as a poet based on the following topic: [I love writing code]"
+    }
+  ]
+}

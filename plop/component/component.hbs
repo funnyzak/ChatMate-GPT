@@ -1,0 +1,26 @@
+/**
+ * Created by leon<silenceace@gmail.com> on {{ dtime }}
+ */
+import { Theme, useTheme } from '@src/theme'
+import React from 'react'
+import { StyleProp, View, ViewStyle } from 'react-native'
+
+interface {{ upperFirstName }}Props {
+  containerStyle?: StyleProp<ViewStyle>
+}
+
+const {{ upperFirstName }}Component = ({ containerStyle }: {{ upperFirstName }}Props) => {
+  const { theme } = useTheme()
+
+  return <View style={[styles.container(theme), containerStyle]} />
+}
+
+const {{ upperFirstName }} = React.memo({{ upperFirstName }}Component)
+
+const styles = {
+  container: (theme: Theme) => ({
+    flex: 1
+  })
+}
+
+export default {{ upperFirstName }}
