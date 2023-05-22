@@ -11,8 +11,9 @@ import { translate } from '@src/i18n'
 import { RootState } from '@src/store'
 import { useTheme } from '@src/theme'
 import { ChatConversation } from '@src/types'
-import { truncateString } from '@src/utils/utils'
+import { alert } from '@src/utils/alert'
 import React, { useMemo } from 'react'
+import { Platform } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 const parseContextMenuAction = (
   indexPath: number[]
@@ -63,10 +64,8 @@ const parseContextMenuSubActionValue = (indexPath: number[]) => {
 }
 export const ChatContextMenu = ({
   children,
-  conversation,
-  type = 'item'
+  conversation
 }: {
-  type?: 'item' | 'chat'
   children: React.ReactNode
   conversation: ChatConversation
 }) => {
@@ -209,11 +208,14 @@ export const ChatContextMenu = ({
       ]}
       onPress={(_e) => {
         logInfo('chat context menu', _e.nativeEvent)
+        const indexPath =
+          Platform.OS === 'ios'
+            ? _e.nativeEvent.indexPath
+            : [_e.nativeEvent.index]
+
         press({
-          action: parseContextMenuAction(_e.nativeEvent.indexPath),
-          actionValue: parseContextMenuSubActionValue(
-            _e.nativeEvent.indexPath
-          )
+          action: parseContextMenuAction(indexPath),
+          actionValue: parseContextMenuSubActionValue(indexPath)
         })
       }}>
       {children}

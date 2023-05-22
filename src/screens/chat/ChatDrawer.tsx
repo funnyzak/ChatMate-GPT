@@ -24,13 +24,10 @@ import React, { useEffect } from 'react'
 import { Keyboard, View } from 'react-native'
 import { connect } from 'react-redux'
 import { HeaderButton, Svgs } from '../components'
-import {
-  ChatContextMenu,
-  ChatContextMenu2
-} from '../components/context-menu'
+import { ChatCMenu } from '../components/context-menu'
 import { SettingSideBar } from '../components/sidebar'
-import ChatScreen from './Chat'
 import { SettingSideBarContainerStyle } from '../components/sidebar/SettingSideBar'
+import ChatScreen from './Chat'
 const defaultScreenOptions = (theme: Theme) => {
   return _defaultScreenOptions(theme, {
     headerBackground: () => (
@@ -92,14 +89,12 @@ const ChatDrawer = ({
         ),
         headerRight: () =>
           chat.chat ? (
-            <ChatContextMenu2
-              conversation={chat.chat}
-              showTitle={false}>
+            <ChatCMenu conversation={chat.chat} showTitle={false}>
               <HeaderButton
                 iconNode={<Svgs.headers.More theme={theme} />}
                 direction="right"
               />
-            </ChatContextMenu2>
+            </ChatCMenu>
           ) : null,
         drawerType: 'slide',
         drawerStyle: SettingSideBarContainerStyle(
