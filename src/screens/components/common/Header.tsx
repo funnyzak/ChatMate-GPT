@@ -70,7 +70,7 @@ export const CustomHeaderTitle = (props: CustomHeaderTitleProps) => {
     <View
       style={[
         styles.CustomHeaderTitle.container(theme),
-        props.titleStyle
+        props.containerStyle
       ]}>
       <Text
         ellipsizeMode="tail"
@@ -105,23 +105,24 @@ const styles = {
   },
   CustomHeaderTitle: {
     container: (theme: Theme): ViewStyle => ({
+      minWidth: '80%',
       display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center'
+      flexDirection: 'column'
     }),
     title: (theme: Theme): TextStyle => ({
+      width: '80%',
+      alignSelf: 'center',
+      textAlign: 'center',
       fontWeight: 'bold',
       fontSize: theme.typography.titleText.fontSize,
-      color: theme.colors.appbarTint,
-      minWidth: 240,
-      maxWidth: '80%',
-      marginHorizontal: 'auto',
-      textAlign: 'center'
+      color: theme.colors.appbarTint
     }),
     description: (theme: Theme): TextStyle => ({
       ...theme.typography.captionText,
-      paddingVertical: theme.spacing.tiny,
-      textAlign: 'center'
+      width: '80%',
+      textAlign: 'center',
+      alignSelf: 'center',
+      paddingVertical: theme.spacing.tiny
     })
   }
 }
