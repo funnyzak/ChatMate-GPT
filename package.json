@@ -78,7 +78,7 @@
     "react-native-haptic-feedback": "2.0.2",
     "react-native-ios-context-menu": "1.15.3",
     "react-native-linear-gradient": "^2.6.2",
-    "react-native-localize": "^2.2.2",
+    "react-native-localize": "^3.0.0",
     "react-native-numeric-input": "1.9.1",
     "react-native-pager-view": "^6.1.2",
     "react-native-rate": "1.2.12",
