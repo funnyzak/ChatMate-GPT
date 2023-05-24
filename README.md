@@ -1,7 +1,6 @@
 # ChatMate-GPT
 
-<!-- [![Build Status][build-status-image]][build-status] -->
-
+[![Build Status][build-status-image]][build-status]
 [![license][license-image]][repository-url]
 [![GitHub repo size][repo-size-image]][repository-url]
 [![Release Date][rle-image]][rle-url]
@@ -10,13 +9,9 @@
 
 ChatMate 是一个基于 Open AI GPT-3 的聊天应用。使用 React Native 开发，支持 Android 和 iOS。
 
-**iOS**
-
 [![Download on the App Store](https://raw.githubusercontent.com/funnyzak/ChatMate-GPT/main/.github/assets/icons/appstorebadge.svg)](https://apps.apple.com/cn/app/%E8%81%8A%E5%A4%A9%E4%BC%99%E4%BC%B4/id6446275365)
 
 [Download on the testflight](https://testflight.apple.com/join/qcHvaScN)
-
-**Android**
 
 [Download Android](https://github.com/funnyzak/ChatMate-GPT/releases/latest)
 
