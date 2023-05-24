@@ -8,6 +8,9 @@ on:
 env:
   DIST_ARCHIVE_PREFIX_NAME: ${{ github.event.repository.name }}
 
+permissions:
+  contents: write
+  
 jobs:
   lint-and-test:
     name: Lint and Test
