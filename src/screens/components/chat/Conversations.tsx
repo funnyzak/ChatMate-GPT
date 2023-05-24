@@ -16,7 +16,11 @@ import React, { useEffect, useMemo } from 'react'
 import { FlatList, StyleProp, View, ViewStyle } from 'react-native'
 import { Svgs, TextWithIconPress } from '../common'
 import Icons from '../common/Icons'
-import { ChatContextMenu, ChatContextMenu2 } from '../context-menu'
+import {
+  ChatCMenu,
+  ChatContextMenu,
+  ChatContextMenu2
+} from '../context-menu'
 interface ConversationsProps {
   containerStyle?: StyleProp<ViewStyle>
   itemContainerStyle?: StyleProp<ViewStyle>
@@ -116,12 +120,12 @@ const ConversationsComponent = ({
           text={item.title}
           onPress={() => onItemPress(item)}
         />
-        <ChatContextMenu2 conversation={item}>
+        <ChatCMenu conversation={item}>
           <Svgs.drawer.common
             name={'ellipsis-horizontal'}
             theme={theme}
           />
-        </ChatContextMenu2>
+        </ChatCMenu>
       </View>
     )
   const renderFooter = () => {

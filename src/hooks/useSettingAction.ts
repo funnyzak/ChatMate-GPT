@@ -379,7 +379,11 @@ export const useSettingAction = () => {
   }
 
   const checkAndSyncICloud = (params?: Callbacks) => {
-    if (iCloudAvailable && setting.icloudSync) {
+    if (
+      iCloudAvailable &&
+      setting.icloudSync &&
+      Platform.OS === 'ios'
+    ) {
       syncICloud(params)
     }
   }

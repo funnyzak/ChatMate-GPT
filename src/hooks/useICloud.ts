@@ -6,6 +6,7 @@ import { logInfo } from '@src/helper'
 import { ICloudContainerSetting } from '@src/types'
 import { getTimestampSecond } from '@src/utils/utils'
 import { useEffect, useState } from 'react'
+import { Platform } from 'react-native'
 import * as CloudStore from 'react-native-cloud-store'
 
 export { CloudStore as ICloudStore }
@@ -42,6 +43,7 @@ export const useICloud = (iCloudSetting: ICloudContainerSetting) => {
   const [cloudURL, setCloudURL] = useState<string>()
 
   useEffect(() => {
+    if (Platform.OS !== 'ios') return
     CloudStore.isICloudAvailable().then((_isAvailable) => {
       setIsAvailable(_isAvailable)
 

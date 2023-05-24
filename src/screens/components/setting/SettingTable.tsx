@@ -55,7 +55,7 @@ import { open, sendEmail } from '@src/utils/urls'
 import { truncateString, wait } from '@src/utils/utils'
 import { uuidv4 } from '@src/utils/uuid'
 import React, { useCallback, useMemo } from 'react'
-import { TouchableOpacity, View } from 'react-native'
+import { Platform, TouchableOpacity, View } from 'react-native'
 import { SheetManager } from 'react-native-actions-sheet'
 import { ShowInputSubmitSheet } from '../action-sheet'
 import { NumericInput, RadioOption, Svgs, Switch } from '../common'
@@ -170,37 +170,44 @@ export const GeneralSettingGroupSetting = () => {
             onPress: () =>
               NavigationService.navigate(ROUTES.SettingChat)
           },
-          {
-            leftNode: <Svgs.settings.Cloud theme={theme} />,
-            title: translate('setting.sync.icloudSync'),
-            withArrow: true,
-            rightText: syncTime,
-            onPress: () =>
-              NavigationService.navigate(ROUTES.ICloudSync),
-            onLongPress: () => {
-              setDoing(true)
-              syncICloud({
-                finallyCallback: () => {
-                  setDoing(false)
+          ...(Platform.OS === 'ios'
+            ? [
+                {
+                  leftNode: <Svgs.settings.Cloud theme={theme} />,
+                  title: translate('setting.sync.icloudSync'),
+                  withArrow: true,
+                  rightText: syncTime,
+                  onPress: () =>
+                    NavigationService.navigate(ROUTES.ICloudSync),
+                  onLongPress: () => {
+                    setDoing(true)
+                    syncICloud({
+                      finallyCallback: () => {
+                        setDoing(false)
+                      }
+                    })
+                  }
+                },
+                {
+                  leftNode: (
+                    <Svgs.settings.common
+                      name={'archive'}
+                      theme={theme}
+                    />
+                  ),
+                  title: translate('setting.info.exportData'),
+                  withArrow: true,
+                  onPress: () => {
+                    setDoing(true)
+                    exportData({
+                      finallyCallback: () => {
+                        setDoing(false)
+                      }
+                    })
+                  }
                 }
-              })
-            }
-          },
-          {
-            leftNode: (
-              <Svgs.settings.common name={'archive'} theme={theme} />
-            ),
-            title: translate('setting.info.exportData'),
-            withArrow: true,
-            onPress: () => {
-              setDoing(true)
-              exportData({
-                finallyCallback: () => {
-                  setDoing(false)
-                }
-              })
-            }
-          },
+              ]
+            : []),
           {
             leftNode: <Svgs.settings.Theme theme={theme} />,
             title: translate('setting.appearance.title'),
@@ -243,34 +250,39 @@ export const SupportSetting = () => {
     <TableList
       title={translate('setting.info.support')}
       rows={[
-        {
-          leftNode: (
-            <Svgs.settings.common name="star" theme={theme} />
-          ),
-          title: translate('setting.info.rate'),
-          withArrow: false,
-          rightNode: (
-            <>
-              {Array.from({
-                length: 5
-              }).map((_, idx) => (
-                <Ions
-                  key={idx}
-                  name="star"
-                  type="sharp"
-                  theme={theme}
-                  style={{
-                    ...iconSetting(theme).settingArrow,
-                    height: theme.dimensions.headerButtonSize - 5,
-                    color: theme.colors.warning,
-                    marginLeft: theme.spacing.tiny
-                  }}
-                />
-              ))}
-            </>
-          ),
-          onPress: rateApp
-        },
+        ...(Platform.OS === 'ios'
+          ? [
+              {
+                leftNode: (
+                  <Svgs.settings.common name="star" theme={theme} />
+                ),
+                title: translate('setting.info.rate'),
+                withArrow: false,
+                rightNode: (
+                  <>
+                    {Array.from({
+                      length: 5
+                    }).map((_, idx) => (
+                      <Ions
+                        key={idx}
+                        name="star"
+                        type="sharp"
+                        theme={theme}
+                        style={{
+                          ...iconSetting(theme).settingArrow,
+                          height:
+                            theme.dimensions.headerButtonSize - 5,
+                          color: theme.colors.warning,
+                          marginLeft: theme.spacing.tiny
+                        }}
+                      />
+                    ))}
+                  </>
+                ),
+                onPress: rateApp
+              }
+            ]
+          : []),
 
         {
           leftNode: <Svgs.settings.Share theme={theme} />,
@@ -385,12 +397,17 @@ export const AppInfoGroupSetting = () => {
           withArrow: true,
           onPress: () => NavigationService.navigate(ROUTES.SettingApp)
         },
-        {
-          leftNode: <Svgs.settings.Scheme theme={theme} />,
-          title: translate('setting.scheme.scheme'),
-          withArrow: true,
-          onPress: () => NavigationService.navigate(ROUTES.URLScheme)
-        },
+        ...(Platform.OS === 'ios'
+          ? [
+              {
+                leftNode: <Svgs.settings.Scheme theme={theme} />,
+                title: translate('setting.scheme.scheme'),
+                withArrow: true,
+                onPress: () =>
+                  NavigationService.navigate(ROUTES.URLScheme)
+              }
+            ]
+          : []),
         {
           leftNode: <Svgs.settings.Faq theme={theme} />,
           title: translate('setting.info.help'),
@@ -1031,28 +1048,67 @@ export const OpenAIApiServersListTable = () => {
         })
         return
       }
-      showActionButtons({
-        title: translate('placeholder.selectAction'),
-        buttons: [
-          {
-            text: translate('common.edit'),
-            onPress: () => {
-              editApiServer(apiserver)
+      if (Platform.OS === 'ios') {
+        showActionButtons({
+          title: translate('placeholder.selectAction'),
+          buttons: [
+            {
+              text: translate('common.edit'),
+              onPress: () => {
+                editApiServer(apiserver)
+              }
+            },
+            {
+              text: translate('common.delete'),
+              onPress: () => {
+                dispatch(removeApiServer([apiserver.id]) as any)
+              }
+            },
+            {
+              text: translate('common.cancel')
             }
-          },
-          {
-            text: translate('common.delete'),
-            onPress: () => {
-              dispatch(removeApiServer([apiserver.id]) as any)
-            }
-          },
-          {
-            text: translate('common.cancel')
+          ],
+          destructiveButtonIndex: 1,
+          cancelButtonIndex: 2
+        })
+      } else {
+        SheetManager.show('node-sheet', {
+          onClose: (data: any) => {},
+          payload: {
+            title: translate('placeholder.selectAction'),
+            children: (
+              <TableList
+                containerStyle={{
+                  marginVertical: theme.spacing.small
+                }}
+                rows={[
+                  {
+                    title: translate('common.edit'),
+                    press: () => {
+                      editApiServer(apiserver)
+                    }
+                  },
+                  {
+                    title: translate('common.delete'),
+                    press: () => {
+                      dispatch(removeApiServer([apiserver.id]) as any)
+                    }
+                  }
+                ].map((item, _idx) => {
+                  return {
+                    ...item,
+                    withArrow: true,
+                    onPress: () => {
+                      SheetManager.hide('node-sheet')
+                      item.press && item.press()
+                    }
+                  }
+                })}
+              />
+            )
           }
-        ],
-        destructiveButtonIndex: 1,
-        cancelButtonIndex: 2
-      })
+        })
+      }
     },
     [setting.languageTag]
   )

@@ -78,7 +78,6 @@ export const Header = {
   ): ViewStyle => ({
     height: '100%',
     width: '100%',
-    backgroundColor: theme.colors.headerBackground,
     borderBottomColor: withBorder
       ? theme.colors.headerBorder
       : theme.colors.transparent,

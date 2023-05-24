@@ -33,7 +33,8 @@ export const ChatContextMenu2 = ({
   )
   const _template = useMemo(
     () =>
-      conversation.config?.temperature === undefined
+      conversation.config?.temperature === undefined ||
+      conversation.config?.temperature === null
         ? openAISetting.temperature
         : conversation.config?.temperature,
     [conversation.config?.temperature, openAISetting.temperature]
@@ -41,7 +42,8 @@ export const ChatContextMenu2 = ({
 
   const _maxMessage = useMemo(
     () =>
-      conversation.perference?.maxMessagesInContext === undefined
+      conversation.perference?.maxMessagesInContext === undefined ||
+      conversation.perference?.maxMessagesInContext === null
         ? openAISetting.maxMessagesInContext
         : conversation.perference?.maxMessagesInContext,
     [
@@ -125,7 +127,11 @@ export const ChatContextMenu2 = ({
             menuItems: [translate('common.default')]
               .concat(TemperatureArray)
               .map((i, idx) => {
-                const temperature = conversation.config?.temperature
+                const temperature =
+                  conversation.config?.temperature === undefined ||
+                  conversation.config?.temperature === null
+                    ? undefined
+                    : conversation.config?.temperature
                 return {
                   actionTitle: i.toString(),
                   actionKey:

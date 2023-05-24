@@ -15,7 +15,7 @@ import {
   MessageText,
   MessageTextProps
 } from 'react-native-gifted-chat'
-import { MessageContextMenu2 } from '../context-menu'
+import { MessageCMenu, MessageContextMenu2 } from '../context-menu'
 import { useAppSelector } from '@src/hooks'
 import { useQuickAction } from '@src/helper'
 import { translate } from '@src/i18n'
@@ -139,7 +139,7 @@ export const RichMessageText = (
     conversation: ChatConversation
   }
 ) => (
-  <MessageContextMenu2
+  <MessageCMenu
     message={props!.currentMessage!}
     conversation={props.conversation}>
     {props.renderMD && props.position === 'left' ? (
@@ -147,5 +147,5 @@ export const RichMessageText = (
     ) : (
       <SimpleMessageText {...props} />
     )}
-  </MessageContextMenu2>
+  </MessageCMenu>
 )

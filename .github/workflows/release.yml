@@ -111,7 +111,7 @@ jobs:
       - name: Push message
         uses: funnyzak/pushoo-action@main
         with:
-          platforms: ifttt,wecombot,bark
+          platforms: ifttt,wecombot,bark,dingtalk
           tokens: ${{ secrets.PUSH_TOKEN }}
           content: |
             # ${{ github.event.repository.name }} Released

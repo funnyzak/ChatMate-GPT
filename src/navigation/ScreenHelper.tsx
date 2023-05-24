@@ -91,7 +91,7 @@ export const defaultScreenOptions = (
   //   marginHorizontal: 'auto',
   //   textAlign: 'center'
   // },
-  // headerTitleAlign: 'center',
+  headerTitleAlign: 'center',
   headerTitle: (props: CustomHeaderTitleProps) => (
     <CustomHeaderTitle {...props} />
   ),
