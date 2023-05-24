@@ -1048,28 +1048,67 @@ export const OpenAIApiServersListTable = () => {
         })
         return
       }
-      showActionButtons({
-        title: translate('placeholder.selectAction'),
-        buttons: [
-          {
-            text: translate('common.edit'),
-            onPress: () => {
-              editApiServer(apiserver)
+      if (Platform.OS === 'ios') {
+        showActionButtons({
+          title: translate('placeholder.selectAction'),
+          buttons: [
+            {
+              text: translate('common.edit'),
+              onPress: () => {
+                editApiServer(apiserver)
+              }
+            },
+            {
+              text: translate('common.delete'),
+              onPress: () => {
+                dispatch(removeApiServer([apiserver.id]) as any)
+              }
+            },
+            {
+              text: translate('common.cancel')
             }
-          },
-          {
-            text: translate('common.delete'),
-            onPress: () => {
-              dispatch(removeApiServer([apiserver.id]) as any)
-            }
-          },
-          {
-            text: translate('common.cancel')
+          ],
+          destructiveButtonIndex: 1,
+          cancelButtonIndex: 2
+        })
+      } else {
+        SheetManager.show('node-sheet', {
+          onClose: (data: any) => {},
+          payload: {
+            title: translate('placeholder.selectAction'),
+            children: (
+              <TableList
+                containerStyle={{
+                  marginVertical: theme.spacing.small
+                }}
+                rows={[
+                  {
+                    title: translate('common.edit'),
+                    press: () => {
+                      editApiServer(apiserver)
+                    }
+                  },
+                  {
+                    title: translate('common.delete'),
+                    press: () => {
+                      dispatch(removeApiServer([apiserver.id]) as any)
+                    }
+                  }
+                ].map((item, _idx) => {
+                  return {
+                    ...item,
+                    withArrow: true,
+                    onPress: () => {
+                      SheetManager.hide('node-sheet')
+                      item.press && item.press()
+                    }
+                  }
+                })}
+              />
+            )
           }
-        ],
-        destructiveButtonIndex: 1,
-        cancelButtonIndex: 2
-      })
+        })
+      }
     },
     [setting.languageTag]
   )

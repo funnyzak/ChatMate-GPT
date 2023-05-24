@@ -19,7 +19,12 @@ import {
   OpenAIModels,
   useQuickAction
 } from '@src/helper'
-import { useAppDispatch, useAppSelector } from '@src/hooks'
+import {
+  useAppDispatch,
+  useAppSelector,
+  useChatActionMenu
+} from '@src/hooks'
+import { useChatMessageAction } from '@src/hooks/useChatMessageAction'
 import {
   LanguageTagType,
   translate,
@@ -32,9 +37,13 @@ import {
   themes,
   useTheme
 } from '@src/theme'
+import { ChatConversation } from '@src/types'
 import { restartApp } from '@src/utils/devices'
+import { wait } from '@src/utils/utils'
 import React from 'react'
+import { StyleProp, ViewStyle } from 'react-native'
 import { SheetManager } from 'react-native-actions-sheet'
+import { IMessage } from 'react-native-gifted-chat'
 import { RadioOption } from '../common'
 import { TableList } from '../list'
 export const ChatModelSettingOptions = () => {
@@ -248,6 +257,132 @@ export const MessageBubblePressBehaviorSettingOptions = () => {
             appDispatch(
               setChatSettingMessageBubbleBehavior(action as any)
             )
+          }
+        }
+      })}
+    />
+  )
+}
+
+export const ChatMessageOptions = ({
+  conversation,
+  message
+}: {
+  message: IMessage
+  conversation: ChatConversation
+}) => {
+  const { theme } = useTheme()
+  const { chatMessageMenuPress } = useChatMessageAction(
+    message,
+    conversation
+  )
+
+  return (
+    <TableList
+      containerStyle={{
+        marginVertical: theme.spacing.small
+      }}
+      rows={[
+        {
+          title: translate('common.copy'),
+          press: () => {
+            chatMessageMenuPress({
+              action: 'copy'
+            })
+          }
+        },
+        {
+          title: translate('common.share'),
+          press: () => {
+            chatMessageMenuPress({
+              action: 'share'
+            })
+          }
+        }
+      ].map((item, _idx) => {
+        return {
+          ...item,
+          withArrow: true,
+          onPress: () => {
+            SheetManager.hide('node-sheet')
+            item.press && item.press()
+          }
+        }
+      })}
+    />
+  )
+}
+
+export const ChatMenuOptions = ({
+  conversation
+}: {
+  conversation: ChatConversation
+}) => {
+  const { theme } = useTheme()
+  const { chatMenuPress: press, redirectChatTitle } =
+    useChatActionMenu(conversation)
+
+  return (
+    <TableList
+      containerStyle={{
+        marginVertical: theme.spacing.small
+      }}
+      rows={[
+        {
+          title: translate('common.title'),
+          press: () => {
+            redirectChatTitle()
+          }
+        },
+        {
+          title: translate('contextmenu.prompt'),
+          press: () => {
+            press({
+              action: 'prompt'
+            })
+          }
+        },
+        {
+          title: translate('common.copy'),
+          press: () => {
+            press({
+              action: 'copy'
+            })
+          }
+        },
+        {
+          title: translate('common.share'),
+          press: () => {
+            press({
+              action: 'share'
+            })
+          }
+        },
+        {
+          title: translate('common.stat'),
+          press: () => {
+            press({
+              action: 'stat'
+            })
+          }
+        },
+        {
+          title: translate('common.delete'),
+          press: () => {
+            press({
+              action: 'delete'
+            })
+          }
+        }
+      ].map((item, _idx) => {
+        return {
+          ...item,
+          withArrow: true,
+          onPress: () => {
+            SheetManager.hide('node-sheet')
+            wait(500, () => {
+              item.press && item.press()
+            })
           }
         }
       })}

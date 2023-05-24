@@ -15,7 +15,7 @@ import { alert } from '@src/utils/alert'
 import React, { useMemo } from 'react'
 import { Platform } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
-const parseContextMenuAction = (
+export const parseChatContextMenuAction = (
   indexPath: number[]
 ): CHAT_ACTION_MENU_TYPE => {
   const [parent, child] = indexPath
@@ -49,7 +49,7 @@ const MaxMessagesArray = Array.from({ length: 7 }, (_, i) =>
   i.toString()
 ).concat(['30'])
 const parseContextMenuSubActionValue = (indexPath: number[]) => {
-  const action = parseContextMenuAction(indexPath)
+  const action = parseChatContextMenuAction(indexPath)
   const [, child] = indexPath
   if (action === 'temperature') {
     return child === 0
@@ -76,7 +76,8 @@ export const ChatContextMenu = ({
   )
   const _template = useMemo(
     () =>
-      conversation.config?.temperature === undefined
+      conversation.config?.temperature === undefined ||
+      conversation.config?.temperature === null
         ? openAISetting.temperature
         : conversation.config?.temperature,
     [conversation.config?.temperature, openAISetting.temperature]
@@ -84,7 +85,8 @@ export const ChatContextMenu = ({
 
   const _maxMessage = useMemo(
     () =>
-      conversation.perference?.maxMessagesInContext === undefined
+      conversation.perference?.maxMessagesInContext === undefined ||
+      conversation.perference?.maxMessagesInContext === null
         ? openAISetting.maxMessagesInContext
         : conversation.perference?.maxMessagesInContext,
     [
@@ -144,7 +146,11 @@ export const ChatContextMenu = ({
           actions: [translate('common.default')]
             .concat(TemperatureArray)
             .map((i) => {
-              const temperature = conversation.config?.temperature
+              const temperature =
+                conversation.config?.temperature === undefined ||
+                conversation.config?.temperature === null
+                  ? undefined
+                  : conversation.config?.temperature
               return {
                 title: i.toString(),
                 systemIcon:
@@ -214,7 +220,7 @@ export const ChatContextMenu = ({
             : [_e.nativeEvent.index]
 
         press({
-          action: parseContextMenuAction(indexPath),
+          action: parseChatContextMenuAction(indexPath),
           actionValue: parseContextMenuSubActionValue(indexPath)
         })
       }}>

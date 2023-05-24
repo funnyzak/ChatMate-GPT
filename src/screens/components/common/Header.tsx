@@ -96,6 +96,7 @@ const styles = {
         height: 44,
         backgroundColor: theme.colors.headerBackground,
         paddingHorizontal: theme.spacing.small,
+        width: '100%',
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -105,12 +106,12 @@ const styles = {
   },
   CustomHeaderTitle: {
     container: (theme: Theme): ViewStyle => ({
-      minWidth: '80%',
+      minWidth: '50%',
       display: 'flex',
       flexDirection: 'column'
     }),
     title: (theme: Theme): TextStyle => ({
-      width: '80%',
+      width: '100%',
       alignSelf: 'center',
       textAlign: 'center',
       fontWeight: 'bold',
@@ -119,7 +120,7 @@ const styles = {
     }),
     description: (theme: Theme): TextStyle => ({
       ...theme.typography.captionText,
-      width: '80%',
+      width: '100%',
       textAlign: 'center',
       alignSelf: 'center',
       paddingVertical: theme.spacing.tiny
