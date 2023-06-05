@@ -79,13 +79,13 @@ const ApiKeyConfig = ({
           setInputKey(_key ?? '')
         }}
         textInputType="password"
-        buttonTitle={translate('setting.apikey.verifyAndSave')}
-        submit={async (key?: string) => {
+        buttonTitle={translate('common.save')}
+        longPressSubmit={async (key?: string) => {
           if (await setOpenAIApiKey(key)) {
             NavigationService.goBack()
           }
         }}
-        longPressSubmit={async (key?: string) => {
+        submit={async (key?: string) => {
           if (
             await setOpenAIApiKey(key, {
               validate: false
