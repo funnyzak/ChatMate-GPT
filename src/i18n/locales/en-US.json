@@ -356,7 +356,7 @@
     "apikey": {
       "title": "Enter your API Key",
       "description": "You can get your API Key from OpenAI Dashboard.",
-      "placeholder": "eg:sk-xxxxxxxxxxxxx",
+      "placeholder": "Please enter your API Key",
       "verify": "Verify Key",
       "verifySuccess": "API Key is valid.",
       "verifyErrorFormat": "API Key format is invalid.",
