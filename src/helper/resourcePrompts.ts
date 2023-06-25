@@ -57,19 +57,21 @@ export const parseResourcePromptPlaceholder = (prompt: string) => {
 }
 
 export interface ResourcePromptInfo {
-  title: string
-  description: string
-  desc_cn: string
-  remark: string
-  title_en: string
-  desc_en: string
-  remark_en: string
-  preview: string | null
   website: string | null
-  source: string | null
   weight?: number
   tags: ResourcePromptTagType[]
   id: number
+  zh: ResourcePromptLanguage
+  en: ResourcePromptLanguage
+  ja: ResourcePromptLanguage
+  ko: ResourcePromptLanguage
+}
+
+export interface ResourcePromptLanguage {
+  title: string
+  description: string
+  prompt: string
+  remark: string
 }
 
 export type ResourcePromptTag = {

@@ -21,6 +21,7 @@ import {
 } from './openai'
 import {
   ResourcePromptInfo,
+  ResourcePromptLanguage,
   ResourcePromptTag,
   ResourcePromptTagColors,
   ResourcePromptTagTypes
@@ -177,20 +178,24 @@ export enum ChatFontSizeRatio {
 
 export const parseResourcePrompts = (
   shortcuts?: Array<ResourcePromptInfo>,
-  language: 'cn' | 'en' | 'zh' = 'en'
+  language: 'cn' | 'en' | 'zh' | 'ja' | 'ko' = 'en'
 ): Array<PromptShortcutInfo> | undefined => {
   if (!shortcuts) return []
 
+  const _language = language === 'cn' ? 'zh' : language
+
   return shortcuts
+    .filter((shortcut) => shortcut[_language])
     .map((shortcut: ResourcePromptInfo, index) => {
       return {
         id: index,
-        title:
-          shortcut[
-            `title${['zh', 'cn'].includes(language) ? '' : '_en'}`
-          ],
-        prompt:
-          shortcut[`desc_${language === 'zh' ? 'cn' : language}`],
+        weight: shortcut.weight || 30,
+        website:
+          !shortcut.website ||
+          shortcut.website === null ||
+          shortcut.website.length === 0
+            ? undefined
+            : shortcut.website,
         tags: shortcut.tags.map((_tag) => ({
           name: _tag,
           label: ResourcePromptTagTypes.includes(_tag)
@@ -198,17 +203,9 @@ export const parseResourcePrompts = (
             : _tag,
           color: ResourcePromptTagColors[_tag] || '#999'
         })),
-        description:
-          shortcut[
-            `remark${['zh', 'cn'].includes(language) ? '' : '_en'}`
-          ],
-        weight: shortcut.weight || 30,
-        website:
-          !shortcut.website ||
-          shortcut.website === null ||
-          shortcut.website.length === 0
-            ? undefined
-            : shortcut.website
+        title: shortcut[_language].title,
+        prompt: shortcut[_language].prompt,
+        description: shortcut[_language].description
       }
     })
     .sort((a, b) => b.weight - a.weight)
