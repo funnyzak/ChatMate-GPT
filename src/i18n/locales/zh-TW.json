@@ -356,7 +356,7 @@
     "apikey": {
       "title": "請輸入你的 API Key",
       "description": "你可以在 OpenAI 儀表板中獲取你的 API Key。",
-      "placeholder": "例如：sk-xxxxxxxxxxxxx",
+      "placeholder": "請輸入你的 API Key",
       "verify": "驗證 Key",
       "verifySuccess": "API Key 有效。",
       "verifyFail": "API Key 無效。",

@@ -63,7 +63,7 @@ const Chat = ({
   )
 
   useEffect(() => {
-    checkIsSetAPIKey(true)
+    // checkIsSetAPIKey(true)
   }, [])
   useEffect(() => {
     let description = !stat

@@ -609,7 +609,7 @@ export const ChatCompontent = (chat: ChatProps) => {
           setIsTextInputFocused(false)
         },
         onFocus: () => {
-          checkIsSetAPIKey(true)
+          // checkIsSetAPIKey(true)
           setIsTextInputFocused(true)
           giftedChatRef?.current?.scrollToBottom()
         }

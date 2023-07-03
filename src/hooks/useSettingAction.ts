@@ -22,6 +22,7 @@ import {
 } from '@src/config'
 import {
   conversationMapToList,
+  getSettingApiServer,
   logInfo,
   useQuickAction
 } from '@src/helper'
@@ -142,6 +143,10 @@ export const useSettingAction = () => {
     [setting.languageTag]
   )
 
+  const getApiServerHost = () => {
+    return getSettingApiServer(openAISetting.apiServers)
+  }
+
   const effectOnRestartTips = useCallback(() => {
     showMsg({
       text2: translate('tips.effectOnRestart')
@@ -159,7 +164,7 @@ export const useSettingAction = () => {
       if (validate) {
         if (checkApiKeyRule(apiKey)) {
           try {
-            await getOpenAIModels(apiKey!, openAISetting.apiServer)
+            await getOpenAIModels(apiKey!, getApiServerHost())
           } catch (_error: any) {
             tips(_error.message, {
               mtype: messageType
