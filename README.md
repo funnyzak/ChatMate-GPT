@@ -48,7 +48,7 @@ ChatMate 是一个基于 Open AI GPT-3 的聊天应用。使用 React Native 开
 
 ![302.AI](.github/assets/302ai.jpg)
 
-> [302.AI](https://302.ai/)是一个汇集全球顶级品牌的AI超市，按需付费，零月费，零门槛使用各种类型AI。[注册](https://gpt302.saaslink.net/q4wE2R) 即可获得1PTC免费测试额度。 了解 [302.AI 开源工具](https://github.com/302ai)。
+> [302.AI](https://gpt302.saaslink.net/q4wE2R)是一个汇集全球顶级品牌的AI超市，按需付费，零月费，零门槛使用各种类型AI。[注册](https://gpt302.saaslink.net/q4wE2R) 即可获得1PTC免费测试额度。 了解 [302.AI 开源工具](https://github.com/302ai)。
 
 ## Screenshots
 
